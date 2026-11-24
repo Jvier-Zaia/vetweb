@@ -29,21 +29,29 @@ using (var scope = app.Services.CreateScope())
         // Si la base está vacía (p. ej. un MySQL nuevo en Railway), cargar esquema y datos de muestra
         var conn = db.Database.GetDbConnection();
         conn.Open();
-        using (var check = conn.CreateCommand())
+        var seedPath = Path.Combine(AppContext.BaseDirectory, "veterinaria_db.sql");
+        if (File.Exists(seedPath))
         {
-            check.CommandText = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'productos'";
-            var existe = Convert.ToInt32(check.ExecuteScalar()) > 0;
-            var seedPath = Path.Combine(AppContext.BaseDirectory, "veterinaria_db.sql");
-            if (!existe && File.Exists(seedPath))
+            var lines = File.ReadAllLines(seedPath).Where(l =>
+                !l.TrimStart().StartsWith("DROP DATABASE", StringComparison.OrdinalIgnoreCase) &&
+                !l.TrimStart().StartsWith("CREATE DATABASE", StringComparison.OrdinalIgnoreCase) &&
+                !l.TrimStart().StartsWith("USE ", StringComparison.OrdinalIgnoreCase));
+            var script = string.Join("\n", lines).Replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ");
+            var split = script.IndexOf("INSERT INTO especies", StringComparison.Ordinal);
+            var schema = split > 0 ? script[..split] : script;
+            var datos = split > 0 ? script[split..] : "";
+            using (var cmd = conn.CreateCommand())
             {
-                var lines = File.ReadAllLines(seedPath).Where(l =>
-                    !l.TrimStart().StartsWith("DROP DATABASE", StringComparison.OrdinalIgnoreCase) &&
-                    !l.TrimStart().StartsWith("CREATE DATABASE", StringComparison.OrdinalIgnoreCase) &&
-                    !l.TrimStart().StartsWith("USE ", StringComparison.OrdinalIgnoreCase));
-                using var seed = conn.CreateCommand();
-                seed.CommandText = string.Join("\n", lines);
-                seed.ExecuteNonQuery();
-                Console.WriteLine("[SEED] Esquema y datos de muestra cargados.");
+                cmd.CommandText = schema;
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = "SELECT COUNT(*) FROM especies";
+                var vacia = Convert.ToInt32(cmd.ExecuteScalar()) == 0;
+                if (vacia && datos.Length > 0)
+                {
+                    cmd.CommandText = datos;
+                    cmd.ExecuteNonQuery();
+                    Console.WriteLine("[SEED] Datos de muestra cargados.");
+                }
             }
         }
         conn.Close();
