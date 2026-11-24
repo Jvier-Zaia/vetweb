@@ -26,6 +26,28 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<VetDbContext>();
+        // Si la base está vacía (p. ej. un MySQL nuevo en Railway), cargar esquema y datos de muestra
+        var conn = db.Database.GetDbConnection();
+        conn.Open();
+        using (var check = conn.CreateCommand())
+        {
+            check.CommandText = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'productos'";
+            var existe = Convert.ToInt32(check.ExecuteScalar()) > 0;
+            var seedPath = Path.Combine(AppContext.BaseDirectory, "veterinaria_db.sql");
+            if (!existe && File.Exists(seedPath))
+            {
+                var lines = File.ReadAllLines(seedPath).Where(l =>
+                    !l.TrimStart().StartsWith("DROP DATABASE", StringComparison.OrdinalIgnoreCase) &&
+                    !l.TrimStart().StartsWith("CREATE DATABASE", StringComparison.OrdinalIgnoreCase) &&
+                    !l.TrimStart().StartsWith("USE ", StringComparison.OrdinalIgnoreCase));
+                using var seed = conn.CreateCommand();
+                seed.CommandText = string.Join("\n", lines);
+                seed.ExecuteNonQuery();
+                Console.WriteLine("[SEED] Esquema y datos de muestra cargados.");
+            }
+        }
+        conn.Close();
+
         string sqlPedidos = @"
             CREATE TABLE IF NOT EXISTS pedidos (
                 id_pedido INT AUTO_INCREMENT PRIMARY KEY,
