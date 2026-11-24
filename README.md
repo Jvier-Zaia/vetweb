@@ -105,9 +105,6 @@ VetWeb/
 
 ---
 
-## 👥 Integrantes
 
-- **Zaia Javier** — Legajo: 66352
-- **Molina Zurita Ana Manuela** — Legajo: 66069
 
 *Programación 2 — Trabajo Práctico Integrador (Noviembre 2026)*
