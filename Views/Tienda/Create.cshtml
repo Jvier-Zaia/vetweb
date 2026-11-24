@@ -1,0 +1,70 @@
+@model VetWeb.Models.Producto
+
+@{
+    ViewData["Title"] = "Agregar Producto a la Tienda";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card card-custom bg-white">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary">
+                    <i class="bi bi-box-seam me-2"></i>Nuevo Producto para Pet Shop
+                </h5>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Volver al Catálogo</a>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label fw-semibold">Nombre del Producto (*)</label>
+                        <input asp-for="Nombre" class="form-control" placeholder="Ej: Alimento Cachorros 10kg" />
+                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="IdCategoria" class="form-label fw-semibold">Categoría (*)</label>
+                            <select asp-for="IdCategoria" class="form-select" asp-items="ViewBag.Categorias"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="IdProveedor" class="form-label fw-semibold">Proveedor (*)</label>
+                            <select asp-for="IdProveedor" class="form-select" asp-items="ViewBag.Proveedores"></select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Precio" class="form-label fw-semibold">Precio de Venta ($) (*)</label>
+                            <input asp-for="Precio" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                            <span asp-validation-for="Precio" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Stock" class="form-label fw-semibold">Stock Inicial (*)</label>
+                            <input asp-for="Stock" type="number" min="0" class="form-control" placeholder="0" />
+                            <span asp-validation-for="Stock" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Descripcion" class="form-label fw-semibold">Descripción o Características</label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Detalles del alimento, indicaciones o accesorios..."></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary fw-semibold px-4 shadow-sm">
+                            <i class="bi bi-save me-1"></i> Guardar en MariaDB
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,26 @@
+## Build and output folders
+bin/
+obj/
+out/
+dist/
+
+## Visual Studio / VS Code
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+
+## Secrets & Local Configuration (NUNCA SUBIR A GIT)
+appsettings.Local.json
+*.local.json
+.env
+.env.*
+
+## Logs
+*.log
+
+## OS Files
+.DS_Store
+Thumbs.db

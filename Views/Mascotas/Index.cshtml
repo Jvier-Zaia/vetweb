@@ -1,0 +1,58 @@
+@model IEnumerable<VetWeb.Models.Mascota>
+
+@{
+    ViewData["Title"] = "Directorio de Pacientes";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-shield-shaded me-2" style="color: #7c3aed;"></i>Directorio de Pacientes y Dueños
+        </h2>
+        <p class="text-muted mb-0">Base de datos de mascotas registradas vinculadas a sus respectivos responsables.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary fw-semibold shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Registrar Paciente
+    </a>
+</div>
+
+<!-- Tabla de Pacientes -->
+<div class="card card-custom bg-white">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Nombre Mascota</th>
+                        <th>Especie / Raza</th>
+                        <th>Edad / Peso</th>
+                        <th>Dueño Responsable</th>
+                        <th>Teléfono</th>
+                        <th>Email de Notificaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted">#@m.IdMascota</td>
+                            <td class="fw-bold text-dark fs-6">@m.Nombre</td>
+                            <td>
+                                <span class="badge bg-light text-primary border">@m.Especie?.Nombre</span>
+                                <small class="text-muted d-block">@(m.Raza ?? "Mestizo")</small>
+                            </td>
+                            <td>
+                                <div>@m.Edad años</div>
+                                <small class="text-muted">@(m.Peso.HasValue ? $"{m.Peso.Value} kg" : "N/D")</small>
+                            </td>
+                            <td class="fw-semibold">@m.Duenio?.NombreCompleto</td>
+                            <td><i class="bi bi-telephone me-1 text-muted"></i>@m.Duenio?.Telefono</td>
+                            <td><i class="bi bi-envelope me-1 text-muted"></i>@m.Duenio?.Email</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

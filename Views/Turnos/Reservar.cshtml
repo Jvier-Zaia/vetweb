@@ -1,0 +1,62 @@
+@model VetWeb.Models.Turno
+
+@{
+    ViewData["Title"] = "Sacar Turno Online";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card card-custom bg-white">
+            <div class="p-4 text-white rounded-top-3" style="background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);">
+                <h4 class="fw-bold mb-1">
+                    <i class="bi bi-calendar-check me-2"></i>Reserva de Turno Veterinario
+                </h4>
+                <p class="mb-0 text-light opacity-90 small">
+                    Completa los datos para agendar la consulta médica. Al confirmar se enviará una notificación a tu correo electrónico.
+                </p>
+            </div>
+
+            <div class="card-body p-4">
+                <form asp-action="Reservar" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdMascota" class="form-label fw-semibold">Paciente / Mascota (*)</label>
+                        <select asp-for="IdMascota" class="form-select" asp-items="ViewBag.Mascotas"></select>
+                        <div class="form-text">
+                            ¿No encuentras a tu mascota? <a asp-controller="Mascotas" asp-action="Create">Regístrala aquí primero</a>.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdVeterinario" class="form-label fw-semibold">Profesional Veterinario (*)</label>
+                        <select asp-for="IdVeterinario" class="form-select" asp-items="ViewBag.Veterinarios"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FechaHora" class="form-label fw-semibold">Fecha y Hora del Turno (*)</label>
+                        <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+                        <span asp-validation-for="FechaHora" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Motivo" class="form-label fw-semibold">Motivo de la Consulta (*)</label>
+                        <textarea asp-for="Motivo" class="form-control" rows="3" placeholder="Ej: Control anual, vacunación, chequeo dermatológico, decaimiento..."></textarea>
+                        <span asp-validation-for="Motivo" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light">Volver a Turnos</a>
+                        <button type="submit" class="btn btn-primary fw-semibold px-4 shadow-sm" style="background-color: #7c3aed; border-color: #7c3aed;">
+                            <i class="bi bi-envelope-check me-1"></i> Confirmar y Reservar Turno
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

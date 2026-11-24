@@ -1,0 +1,134 @@
+@model VetWeb.Models.SolicitudTurnoViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Turnos";
+    var listaTurnos = ViewBag.ListaTurnos as List<VetWeb.Models.Turno> ?? new List<VetWeb.Models.Turno>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Encabezado -->
+        <div class="card border-0 text-white rounded-4 shadow-sm mb-4" 
+             style="background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);">
+            <div class="card-body p-4 p-md-5">
+                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2">
+                    <i class="bi bi-calendar2-check-fill me-1"></i> Consultorio Veterinario
+                </span>
+                <h2 class="display-6 fw-bold mb-2">Solicitar Turno para Consulta Médica</h2>
+                <p class="lead mb-0 text-light opacity-90 fs-6">
+                    Completa la información básica de tu mascota y una breve descripción de lo que necesita. Te enviaremos una notificación de confirmación a tu correo electrónico.
+                </p>
+            </div>
+        </div>
+
+        <!-- Formulario de Solicitud de Turno -->
+        <div class="card card-custom bg-white p-4 p-md-5 mb-5">
+            <form asp-action="Index" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <!-- 1. Información del Paciente -->
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle p-2 me-2" style="background-color: #f3e8ff; color: #7c3aed;">
+                        <i class="bi bi-heart-pulse-fill fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">1. Información del Paciente (Tu Mascota)</h5>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="NombreMascota" class="form-label fw-semibold">Nombre de la Mascota (*)</label>
+                        <input asp-for="NombreMascota" class="form-control form-control-lg" placeholder="Ej: Milo, Luna, Thor" />
+                        <span asp-validation-for="NombreMascota" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Especie" class="form-label fw-semibold">Especie (*)</label>
+                        <select asp-for="Especie" class="form-select form-control-lg">
+                            <option value="Perro">Perro</option>
+                            <option value="Gato">Gato</option>
+                            <option value="Ave">Ave</option>
+                            <option value="Conejo">Conejo</option>
+                            <option value="Lobo Marino">Lobo Marino (MariaDB)</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                        <span asp-validation-for="Especie" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Raza" class="form-label fw-semibold">Raza <span class="text-muted fw-normal">(opcional)</span></label>
+                        <input asp-for="Raza" class="form-control" placeholder="Ej: Caniche, Siamés, Mestizo..." />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Edad" class="form-label fw-semibold">Edad Aproximada en Años <span class="text-muted fw-normal">(opcional)</span></label>
+                        <input asp-for="Edad" type="number" min="0" max="40" class="form-control" placeholder="Ej: 3" />
+                        <span class="form-text text-muted small">No te preocupes por el peso ni datos técnicos, los revisará el veterinario.</span>
+                    </div>
+                </div>
+
+                <hr class="my-4 text-muted" />
+
+                <!-- 2. Información del Dueño y Contacto -->
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle p-2 me-2" style="background-color: #f3e8ff; color: #7c3aed;">
+                        <i class="bi bi-person-fill fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">2. Información del Dueño y Contacto</h5>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="NombreDuenio" class="form-label fw-semibold">Nombre y Apellido (*)</label>
+                        <input asp-for="NombreDuenio" class="form-control" placeholder="Tu nombre completo" />
+                        <span asp-validation-for="NombreDuenio" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Telefono" class="form-label fw-semibold">Teléfono de Contacto (*)</label>
+                        <input asp-for="Telefono" class="form-control" placeholder="Ej: 11-4455-6677" />
+                        <span asp-validation-for="Telefono" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Email" class="form-label fw-semibold">Correo Electrónico (*) <span class="badge bg-info text-dark">Para avisos</span></label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="nombre@correo.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4 text-muted" />
+
+                <!-- 3. Información de la Consulta -->
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle p-2 me-2" style="background-color: #f3e8ff; color: #7c3aed;">
+                        <i class="bi bi-calendar-event-fill fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">3. Cita y Motivo de Consulta</h5>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="FechaHora" class="form-label fw-semibold">Fecha y Hora Preferida (*)</label>
+                        <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+                        <span asp-validation-for="FechaHora" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="IdVeterinario" class="form-label fw-semibold">Profesional Veterinario (*)</label>
+                        <select asp-for="IdVeterinario" class="form-select" asp-items="ViewBag.Veterinarios"></select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Motivo" class="form-label fw-semibold">Descripción o Motivo de la Consulta (*)</label>
+                        <textarea asp-for="Motivo" class="form-control" rows="3" 
+                                  placeholder="Describe qué le pasa a tu mascota (ej: control de rutina, vacunas pendientes, no quiere comer, renguea de una pata, etc.)..."></textarea>
+                        <span asp-validation-for="Motivo" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg fw-bold py-3 shadow-sm rounded-pill" style="background-color: #7c3aed; border-color: #7c3aed;">
+                        <i class="bi bi-calendar-check me-2"></i> Confirmar y Agendar Turno
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,217 @@
+@model IEnumerable<VetWeb.Models.Producto>
+
+@{
+    ViewData["Title"] = "Tienda Pet Shop";
+    var categorias = ViewBag.Categorias as List<VetWeb.Models.CategoriaProducto> ?? new List<VetWeb.Models.CategoriaProducto>();
+    int catSeleccionada = ViewBag.CategoriaSeleccionada ?? 0;
+}
+
+<style>
+    .store-hero {
+        background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+        border-radius: 16px;
+        color: white;
+        padding: 2.2rem 2.5rem;
+        margin-bottom: 1.8rem;
+    }
+    .sticky-search-card {
+        position: sticky;
+        top: 70px;
+        z-index: 1020;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .cat-tab {
+        font-weight: 600;
+        font-size: 0.92rem;
+        padding: 0.45rem 1.1rem;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .product-img-box {
+        height: 140px;
+        border-radius: 12px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        border: 1px dashed #cbd5e1;
+    }
+</style>
+
+<!-- Banner Principal de la Tienda -->
+<div class="store-hero shadow-sm">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2">
+                <i class="bi bi-bag-heart-fill me-1"></i> Catálogo Exclusivo
+            </span>
+            <h1 class="display-6 fw-bold mb-2">Pet Shop Oficial</h1>
+            <p class="lead mb-0 text-light opacity-90 fs-6">
+                Selecciona alimentos, juguetes y accesorios para tu mascota, agrégalos a tu carrito y paga por transferencia a nuestro <strong>Alias bancario oficial</strong> con verificación inmediata.
+            </p>
+        </div>
+        <div class="col-lg-4 text-end d-none d-lg-block">
+            <a asp-action="Create" class="btn btn-warning fw-bold px-3 py-2 shadow-sm rounded-pill">
+                <i class="bi bi-plus-circle me-1"></i> Publicar Producto
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Pestaña Pegada de Búsqueda y Filtros de Productos -->
+<div class="sticky-search-card p-3 mb-4">
+    <form asp-action="Index" method="get">
+        <div class="row g-2 align-items-center mb-2">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                        <i class="bi bi-search fs-5"></i>
+                    </span>
+                    <input type="text" name="buscar" value="@ViewBag.Buscar"
+                           class="form-control form-control-lg border-start-0 ps-2"
+                           placeholder="Buscar por nombre, marca o indicación (ej: Royal Canin, Pipeta, Collar)..." />
+                </div>
+            </div>
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm" style="background-color: #7c3aed; border-color: #7c3aed;">
+                    <i class="bi bi-search me-1"></i> Buscar
+                </button>
+            </div>
+        </div>
+
+        <!-- Pestañas de Categorías -->
+        <div class="d-flex flex-wrap align-items-center gap-2 pt-2 border-top">
+            <span class="text-muted small fw-semibold me-2"><i class="bi bi-funnel me-1"></i>Categorías:</span>
+            <a asp-action="Index"
+               class="cat-tab @(catSeleccionada == 0 ? "bg-dark text-white shadow-sm" : "bg-light text-secondary border")">
+                Todos los Productos
+            </a>
+            @foreach (var c in categorias)
+            {
+                string icono = c.Nombre switch {
+                    "Alimentos" => "bi-egg-fried",
+                    "Farmacia" => "bi-shield-check",
+                    "Accesorios" => "bi-gem",
+                    _ => "bi-tag"
+                };
+                string nombreCat = c.Nombre == "Farmacia" ? "Cuidado Pet" : c.Nombre;
+                <a asp-action="Index" asp-route-categoriaId="@c.IdCategoria"
+                   class="cat-tab @(catSeleccionada == c.IdCategoria ? "text-white shadow-sm" : "bg-light text-secondary border")"
+                   style="@(catSeleccionada == c.IdCategoria ? "background-color: #7c3aed;" : "")">
+                    <i class="bi @icono me-1"></i> @nombreCat
+                </a>
+            }
+            @if (catSeleccionada != 0 || !string.IsNullOrWhiteSpace(ViewBag.Buscar))
+            {
+                <a asp-action="Index" class="btn btn-sm btn-link text-danger text-decoration-none ms-auto p-0 small">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
+                </a>
+            }
+        </div>
+    </form>
+</div>
+
+<!-- Catálogo de Productos -->
+<div class="row g-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5 bg-white rounded-4 shadow-sm">
+            <i class="bi bi-box2 text-muted fs-1 d-block mb-3"></i>
+            <h5 class="text-secondary fw-bold">No encontramos productos con esos criterios</h5>
+            <p class="text-muted small">Prueba cambiando el término de búsqueda o seleccionando otra categoría.</p>
+            <a asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-3">Ver Todos los Productos</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-custom h-100 bg-white p-3 d-flex flex-column">
+                    <!-- Icono representativo -->
+                    <div class="product-img-box">
+                        @if (item.Categoria?.Nombre == "Alimentos")
+                        {
+                            <span title="Alimento Balanceado">🥣</span>
+                        }
+                        else if (item.Categoria?.Nombre == "Farmacia")
+                        {
+                            <span title="Cuidado de Mascotas">🧴</span>
+                        }
+                        else if (item.Categoria?.Nombre == "Accesorios")
+                        {
+                            <span title="Accesorios y Juguetes">🦮</span>
+                        }
+                        else
+                        {
+                            <span>🐾</span>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge border px-2 py-1 rounded-pill small fw-semibold"
+                              style="background-color: #f3e8ff; color: #7c3aed;">
+                            @(item.Categoria?.Nombre == "Farmacia" ? "Cuidado Pet" : item.Categoria?.Nombre)
+                        </span>
+
+                        @if (item.Stock <= 5)
+                        {
+                            <span class="badge bg-danger rounded-pill px-2 py-1 small">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> ¡Últimas @item.Stock un!
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-secondary border rounded-pill px-2 py-1 small">
+                                Stock: @item.Stock un.
+                            </span>
+                        }
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-1">@item.Nombre</h5>
+                    <p class="text-muted small flex-grow-1 mb-2">
+                        @(item.Descripcion ?? "Producto de excelente calidad para el cuidado de mascotas.")
+                    </p>
+
+                    <div class="small text-muted mb-3">
+                        <i class="bi bi-truck me-1"></i> Distribuidor: <strong>@item.Proveedor?.Nombre</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">PRECIO FINAL</small>
+                            <span class="fs-4 fw-bold text-success">$@item.Precio.ToString("N0")</span>
+                        </div>
+
+                        <!-- Botón interactivo de Carrito -->
+                        <button type="button" class="btn btn-primary fw-bold px-3 py-2 rounded-pill shadow-sm"
+                                style="background-color: #7c3aed; border-color: #7c3aed;"
+                                onclick="addToCart(@item.IdProducto, '@item.Nombre.Replace("'", "\\'")', @item.Precio, @item.Stock)"
+                                @(item.Stock <= 0 ? "disabled" : "")>
+                            <i class="bi bi-cart-plus me-1"></i> Agregar
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-2 pt-2 border-top">
+                        <a asp-action="Edit" asp-route-id="@item.IdProducto" class="text-secondary small text-decoration-none">
+                            <i class="bi bi-pencil me-1"></i>Editar
+                        </a>
+                        <span class="text-muted">|</span>
+                        <form asp-action="Delete" asp-route-id="@item.IdProducto" method="post" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
+                            <button type="submit" class="btn btn-link text-danger p-0 small text-decoration-none">
+                                <i class="bi bi-trash me-1"></i>Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
